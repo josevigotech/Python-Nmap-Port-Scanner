@@ -52,7 +52,7 @@ def main():
         print(" Rango de puertos no válido. Intenta de nuevo.")
         rango_puertos = input("Ingresa el rango de puertos a escanear: ")
     
-    print("⏳ Escaneando... Esto puede tardar unos segundos.")
+    print(" Escaneando... Esto puede tardar unos segundos.")
     resultados = escanear_puertos(ip, rango_puertos)
     
     if resultados:
