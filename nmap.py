@@ -2,63 +2,64 @@ import nmap
 import csv
 import re
 
-def validar_ip(ip):
-    """Valida si la IP ingresada tiene un formato correcto."""
-    patron_ip = r"^(?:\d{1,3}\.){3}\d{1,3}$"
-    return re.match(patron_ip, ip) is not None
+def validate_ip(ip):
+    """Validate if the entered IP has a correct format."""
+    ip_pattern = r"^(?:\d{1,3}\.){3}\d{1,3}$"
+    return re.match(ip_pattern, ip) is not None
 
-def validar_puertos(rango):
-    """Valida si el rango de puertos ingresado es correcto (ejemplo: 1-1000)."""
-    patron_rango = r"^\d{1,5}-\d{1,5}$"
-    return re.match(patron_rango, rango) is not None
+def validate_ports(port_range):
+    """Validate if the entered port range is correct (e.g., 1-1000)."""
+    range_pattern = r"^\d{1,5}-\d{1,5}$"
+    return re.match(range_pattern, port_range) is not None
 
-def escanear_puertos(ip, rango_puertos):
-    """Realiza un escaneo de puertos en la IP ingresada y guarda los resultados."""
-    escaner = nmap.PortScanner()
-    escaner.scan(ip, rango_puertos, arguments='-sV')
+def scan_ports(ip, port_range):
+    """Perform a port scan on the given IP and save the results."""
+    scanner = nmap.PortScanner()
+    scanner.scan(ip, port_range, arguments='-sV')
     
-    resultados = []
+    results = []
     
-    for host in escaner.all_hosts():
-        for puerto in escaner[host]['tcp']:
-            info_puerto = escaner[host]['tcp'][puerto]
-            resultados.append([
-                host, puerto, info_puerto['state'], info_puerto.get('name', 'Desconocido'), info_puerto.get('version', 'No especificada')
+    for host in scanner.all_hosts():
+        for port in scanner[host]['tcp']:
+            port_info = scanner[host]['tcp'][port]
+            results.append([
+                host, port, port_info['state'], port_info.get('name', 'Unknown'), port_info.get('version', 'Not specified')
             ])
     
-    guardar_resultados(resultados)
+    save_results(results)
     
-    return resultados
+    return results
 
-def guardar_resultados(resultados):
-    """Guarda los resultados en archivos .txt y .csv."""
-    with open("resultados_escaneo.txt", "w") as txt_file:
-        for r in resultados:
-            txt_file.write(f"IP: {r[0]} | Puerto: {r[1]} | Estado: {r[2]} | Servicio: {r[3]} | Versión: {r[4]}\n")
+def save_results(results):
+    """Save the scan results in .txt and .csv files."""
+    with open("scan_results.txt", "w") as txt_file:
+        for r in results:
+            txt_file.write(f"IP: {r[0]} | Port: {r[1]} | State: {r[2]} | Service: {r[3]} | Version: {r[4]}\n")
     
-    with open("resultados_escaneo.csv", "w", newline='') as csv_file:
+    with open("scan_results.csv", "w", newline='') as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerow(["IP", "Puerto", "Estado", "Servicio", "Versión"])
-        writer.writerows(resultados)
+        writer.writerow(["IP", "Port", "State", "Service", "Version"])
+        writer.writerows(results)
 
 def main():
-    ip = input("Ingresa la IP a escanear: ")
-    while not validar_ip(ip):
-        print(" IP no válida. Intenta de nuevo.")
-        ip = input("Ingresa la IP a escanear: ")
+    ip = input("Enter the IP to scan: ")
+    while not validate_ip(ip):
+        print("Invalid IP. Please try again.")
+        ip = input("Enter the IP to scan: ")
     
-    rango_puertos = input("Ingresa el rango de puertos a escanear (ejemplo: 1-1000): ")
-    while not validar_puertos(rango_puertos):
-        print(" Rango de puertos no válido. Intenta de nuevo.")
-        rango_puertos = input("Ingresa el rango de puertos a escanear: ")
+    port_range = input("Enter the port range to scan (e.g., 1-1000): ")
+    while not validate_ports(port_range):
+        print("Invalid port range. Please try again.")
+        port_range = input("Enter the port range to scan: ")
     
-    print(" Escaneando... Esto puede tardar unos segundos.")
-    resultados = escanear_puertos(ip, rango_puertos)
+    print("Scanning... This may take a few seconds.")
+    results = scan_ports(ip, port_range)
     
-    if resultados:
-        print(" Escaneo completado. Los resultados se guardaron en 'resultados_escaneo.txt' y 'resultados_escaneo.csv'.")
+    if results:
+        print("Scan complete. Results saved in 'scan_results.txt' and 'scan_results.csv'.")
     else:
-        print(" No se encontraron puertos abiertos.")
+        print("No open ports found.")
 
 if __name__ == "__main__":
     main()
+
